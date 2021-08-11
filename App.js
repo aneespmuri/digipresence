@@ -11,6 +11,7 @@ const App = () => {
   }, []);
 
   const handleApi = () => {
+    //
     fetch('https://api.npoint.io/0975576e8aaef7a2ec02')
       .then(response => response.json())
       .then(json => {
