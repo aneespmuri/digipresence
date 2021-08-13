@@ -20,19 +20,30 @@ const StyledPicker = ({selectedLanguage, onValueChange, url}) => {
   };
 
   return (
-    <Picker
-      mode={'dropdown'}
-      selectedValue={selectedLanguage}
-      onValueChange={onValueChange}>
-      <Picker.Item label={'Select'} value={null} />
+    <View style={{borderBottomColor: '#dfdfdf', borderBottomWidth: 1}}>
+      <Picker
+        mode={'dropdown'}
+        selectedValue={selectedLanguage}
+        onValueChange={onValueChange}>
+        <Picker.Item
+          label={'Select'}
+          value={null}
+          style={styles.picker}
+          itemStyle={styles.pickerItem}
+        />
 
-      {data?.Result?.map(i => (
-        <Picker.Item label={i.DisplayText} value={i.Id} />
-      ))}
-    </Picker>
+        {data?.Result?.map(i => (
+          <Picker.Item label={i.Name} value={i.Id} />
+        ))}
+      </Picker>
+    </View>
   );
 };
 
 export default StyledPicker;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  pickerItem: {
+    padding: 0,
+  },
+});
