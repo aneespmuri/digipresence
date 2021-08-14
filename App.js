@@ -11,6 +11,7 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DocumentPicker from 'react-native-document-picker';
+import axios from 'axios';
 
 import StyledHeader from './Component/StyledHeader';
 import StyledTextInput from './Component/StyledTextInput';
@@ -26,6 +27,8 @@ const App = () => {
   const [type, setType] = useState('date');
   const [singleFile, setSingleFile] = useState('');
 
+  const [storedData, setStoredData] = useState('');
+
   useEffect(() => {
     handleApi();
   }, []);
@@ -35,14 +38,14 @@ const App = () => {
   }, [responsedata, currentIndex]);
 
   const handleApi = () => {
-    fetch('https://api.npoint.io/0975576e8aaef7a2ec02')
-      .then(response => response.json())
-      .then(json => {
-        setResponse(json);
-        setMaxLength(json.Result.FormStages.length - 1);
+    axios
+      .get('https://api.npoint.io/0975576e8aaef7a2ec02')
+      .then(response => {
+        setMaxLength(response.data.Result.FormStages.length - 1);
+        setResponse(response.data);
       })
-      .catch(error => {
-        console.error(error);
+      .catch(function (error) {
+        alert(error.message);
       });
   };
 
@@ -51,12 +54,15 @@ const App = () => {
 
     responsedata?.Result?.FormStages[currentIndex]?.Sections?.map(i => {
       const obj = {};
-      obj.title = i.NameAr;
+      obj.title = i?.NameAr;
       obj.data = i.FieldInformations;
+      i.FieldInformations.push({value: null});
       sections.push(obj);
     });
     setdata(sections);
   };
+
+  console.log(JSON.stringify(data));
 
   const handleNextButton = type => {
     if (type === 'increment') {
@@ -72,6 +78,7 @@ const App = () => {
   };
 
   const showDatePicker = type => {
+    // console.log(type);
     setType(type);
     setDatePickerVisibility(true);
   };
@@ -86,40 +93,31 @@ const App = () => {
   };
 
   const selectOneFile = async () => {
-    //Opening Document Picker for selection of one file
     try {
       const res = await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
-        //There can me more options as well
-        // DocumentPicker.types.allFiles
-        // DocumentPicker.types.images
-        // DocumentPicker.types.plainText
-        // DocumentPicker.types.audio
-        // DocumentPicker.types.pdf
       });
-      //Printing the log realted to the file
-      console.log('res : ' + JSON.stringify(res));
-      console.log('URI : ' + res.uri);
-      console.log('Type : ' + res.type);
-      console.log('File Name : ' + res.name);
-      console.log('File Size : ' + res.size);
-      //Setting the state to show single file attributes
+
       setSingleFile(res);
     } catch (err) {
-      //Handling any exception (If any)
       if (DocumentPicker.isCancel(err)) {
-        //If user canceled the document selection
         alert('Canceled from single doc picker');
       } else {
-        //For Unknown Error
         alert('Unknown Error: ' + JSON.stringify(err));
         throw err;
       }
     }
   };
 
+  const inputtFeild = ['text', 'email', 'url', 'number', 'textarea'];
+  const picker = ['dropdown'];
+  const dateTimePicker = ['date', 'time', 'datetime-local', 'month'];
+
+  const handleOnchangeValues = (id, value) => {
+    setStoredData([...storedData, {id, value}]);
+  };
+
   const renderItem = ({item}) => {
-    console.log(item, '............');
     return (
       <View>
         <Text>
@@ -127,31 +125,32 @@ const App = () => {
           {item.IsMandatory && <Text style={{color: '#FF0707'}}> * </Text>}
         </Text>
         <View>
-          {item.Type === 'text' ||
-          item.Type === 'email' ||
-          item.Type === 'url' ||
-          item.Type === 'number' ||
-          item.Type === 'textarea' ? (
+          {inputtFeild.includes(item.Type) ? (
             <View>
               <StyledTextInput
                 placeholder={item.NameAr}
                 keyboardType={item.Type === 'number' ? 'numeric' : 'default'}
+                onChangeText={value =>
+                  handleOnchangeValues(item.FieldInformationId, value)
+                }
               />
             </View>
-          ) : item.Type === 'dropdown' ? (
+          ) : picker.includes(item.Type) ? (
             <>
               <StyledPicker url={item.DataFillFrom} />
             </>
-          ) : item.Type === 'date' ||
-            item.Type === 'time' ||
-            item.Type === 'datetime-local' ||
-            item.Type === 'month' ? (
+          ) : dateTimePicker.includes(item.Type) ? (
             <Pressable
-              onPress={() =>
-                item.Type === 'date' || 'month'
+              onPress={() => {
+                console.log(item.Type);
+                item.Type === 'date' || item.Type === 'month'
                   ? showDatePicker('date')
-                  : showDatePicker('time')
-              }
+                  : item.Type === 'time'
+                  ? showDatePicker('time')
+                  : item.Type === 'datetime-local'
+                  ? showDatePicker('datetime')
+                  : null;
+              }}
               style={styles.textinputStyle}>
               <Text style={{color: '#6D6D6D'}}>Select {item.Type}</Text>
               <Icon name="chevron-down" size={12} color="#6D6D6D" />

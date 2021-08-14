@@ -12,7 +12,9 @@
   "dependencies": {
     "@react-native-community/datetimepicker": "^3.5.2",
     "@react-native-picker/picker": "^1.16.5",
+    "axios": "^0.21.1",
     "react": "17.0.1",
+    "react-hook-form": "^7.12.2",
     "react-native": "0.64.2",
     "react-native-color-picker": "^0.6.0",
     "react-native-document-picker": "^6.0.2",

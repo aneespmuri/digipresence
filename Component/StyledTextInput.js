@@ -8,6 +8,7 @@ const StyledTextinput = ({placeholder, keyboardType, onChangeText}) => {
         fontSize: 15,
         borderBottomWidth: 1,
         borderBottomColor: '#dfdfdf',
+        color: '#000',
       }}
       placeholderTextColor="#6D6D6D"
       placeholder={placeholder}
